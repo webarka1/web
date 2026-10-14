@@ -1,0 +1,70 @@
+# =====================================================
+# robots.txt — Portofolio Arka Arthand Syach
+# Taruh file ini di folder UTAMA website (sejajar index.html) — alamatnya jadi namadomain.com/robots.txt
+#
+# CATATAN JUJUR: robots.txt itu cuma "permintaan sopan". Bot AI yang patuh (OpenAI, Google, Anthropic, dll)
+# akan berhenti, tapi bot nakal bisa mengabaikannya. Selain itu, HTML/CSS/JS web apapun TETAP bisa dilihat
+# siapa saja lewat "View Source" di browser — itu sifat dasar web, gak bisa 100% diblokir.
+# =====================================================
+
+# --- Bot AI / pengumpul data training ---
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Perplexity-User
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+# --- Mesin pencari biasa (Google Search, Bing, dll) tetap BOLEH, biar webmu tetap bisa ditemukan ---
+User-agent: *
+Allow: /

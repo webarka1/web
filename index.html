@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Terapkan tema warna & setting efek 3D yang disimpan user SEBELUM CSS kebaca,
+     biar pas halaman dibuka ulang gak ada "kedipan" balik ke warna default. -->
+<script>
+(function(){
+  try{
+    var t=JSON.parse(localStorage.getItem('arkaTheme')||'null');
+    // biru lama (terlalu gelap) yang mungkin tersimpan di browser → otomatis dipindah ke biru baru yang lebih terang
+    if(t && t.navy && String(t.navy).toUpperCase()==='#061A2B'){ t={navy:'#0A2E4F',navy2:'#0F3C66',accent:t.accent||'#D71920',accent2:'#2563B0'}; try{ localStorage.setItem('arkaTheme',JSON.stringify(t)); }catch(e){} }
+    if(t){
+      var r=document.documentElement;
+      if(t.navy) r.style.setProperty('--navy',t.navy);
+      if(t.navy2) r.style.setProperty('--navy2',t.navy2);
+      if(t.accent) r.style.setProperty('--accent',t.accent);
+      if(t.accent2) r.style.setProperty('--accent2',t.accent2);
+    }
+    if(localStorage.getItem('arkaTilt3d')==='off'){
+      document.documentElement.classList.add('tilt3d-off');
+    }
+    var mode=localStorage.getItem('arkaColorMode')||'auto';
+    var wantDark = mode==='dark' || (mode==='auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if(wantDark) document.documentElement.classList.add('dark');
+    // Master toggle animasi UI: kalau user matiin lewat panel Settings, kelas .animations-off
+    // ditempel SEBELUM CSS/body sempat kerender, jadi semua efek gerak langsung mati dari awal
+    // (gak ada kedipan "animasi nyala sebentar baru mati").
+    if(localStorage.getItem('arkaAnimations')==='off'){
+      document.documentElement.classList.add('animations-off');
+    }
+  }catch(e){}
+})();
+</script>
+<!-- SECURITY: batasi sumber resource & kebocoran referrer. Header
+     X-Content-Type-Options / X-Frame-Options tidak bisa diatur lewat meta —
+     atur di konfigurasi server/hosting (mis. Netlify _headers, .htaccess). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Minta crawler AI jangan memakai konten web ini (lihat juga robots.txt) -->
+<meta name="robots" content="index, follow, noai, noimageai">
+<title>Arka Arthand Syach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- =====================================================================
+     PANDUAN SEMUA GAMBAR & VIDEO — baca ini dulu sebelum isi konten!
+     =====================================================================
+     Semua gambar/video di web ini dicari otomatis dari NAMA FILE di bawah. Tinggal taruh file kamu
+     di folder yang sesuai dengan NAMA PERSIS (termasuk huruf besar/kecil) — otomatis muncul, gak
+     perlu ubah kode apapun. Kalau file belum ada / salah nama, otomatis sembunyi sendiri rapi
+     (gak nampilin kotak rusak/placeholder jelek), jadi aman diisi belakangan satu-satu.
+
+     Taruh gambar di "images/", video di "videos/", lagu tema di "audio/" (sejajar sama index.html):
+       index.html
+       style.css
+       script.js
+       images/   <-- semua foto/gambar di sini
+       videos/   <-- video featured di sini (lihat CARA-PASANG-VIDEO.txt buat detail)
+       audio/    <-- lagu buat Theme Music Player di sini
+
+     DAFTAR FILE GAMBAR (format: WebP — lebih ringan dari JPG/PNG, tetap bisa transparan, ukuran di bawah ~500KB biar cepat loading):
+       • hero-background.webp   → foto besar background Hero (disarankan landscape, minimal 1600px lebar)
+       • profile-3d.webp        → foto full-body kamu buat efek 3D di Hero (disarankan WebP transparan)
+       • achievement.webp, connections.webp, suggestions.webp, trophies.webp,
+         project-1.webp s/d project-6.webp, skills.webp   → gambar kartu di Highlights & Projects (landscape ~4:3)
+       • pfp-arka.webp, pfp-ano.webp       → foto profil/logo channel di section Media (persegi 1:1)
+       • thumbnail-1.webp s/d thumbnail-3.webp       → thumbnail video channel Arka
+       • ano-thumbnail-1.webp s/d ano-thumbnail-3.webp → thumbnail video channel kedua
+       • sertifikat-1.webp s/d sertifikat-6.webp     → foto sertifikat/piagam di section Trophies
+       • footer-photo.webp      → foto kecil di Footer/Contact
+       • theme-avatar-idle.webp, theme-avatar-playing.webp (OPSIONAL) → ganti avatar helm bawaan di
+         Theme Music Player dengan foto sendiri (persegi, PENTING: pakai foto yang kamu punya hak
+         pakainya — jangan foto orang lain/figur publik tanpa izin). Gak diisi juga gapapa, helm
+         orisinalnya otomatis dipakai dan tetap "nyala" pas lagu diputar.
+
+     DAFTAR FILE VIDEO (format .mp4, idealnya di bawah ~20-30MB biar gak berat):
+       • videos/featured-arka.mp4  → video pilihan (autoplay) channel Arka
+       • videos/featured-ano.mp4   → video pilihan (autoplay) channel kedua
+       Rasio videonya otomatis ngikut video aslinya (landscape TETAP landscape, Shorts/portrait
+       TETAP portrait) — gak di-crop paksa jadi 16:9 lagi, baik dibuka di HP maupun PC.
+       Mau pakai link YouTube aja (gak upload file)? Cari komentar "MAU PAKAI LINK YOUTUBE?" di
+       section MEDIA di bawah, ikuti instruksinya. Panduan lengkap: lihat file CARA-PASANG-VIDEO.txt.
+
+     DAFTAR FILE AUDIO (format .mp3, Theme Music Player di bawah Hero):
+       • audio/theme-1.mp3, audio/theme-2.mp3, audio/theme-3.mp3 → 3 lagu, urutannya ikut array
+         "themeTracks" di script.js (di situ juga tempat ganti JUDUL lagunya). Belum ada filenya?
+         Tombol play tetep muncul, tinggal kasih tau "file belum ada" pas dipencet — gak error.
+     ===================================================================== -->
+
+<!-- ===================== SCROLL PROGRESS ===================== -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ===================== CURSOR GLOW (desktop only) ===================== -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- ===================== HEADER ===================== -->
+<header id="siteHeader">
+  <div class="nav-bar">
+    <button class="menu-btn" id="menuOpen" aria-label="Buka menu"><span></span></button>
+    <div class="brand">ARKA ARTHAND SYACH<small>SMKS BINONG PERMAI</small></div>
+    <div class="header-right">
+      <!-- GANTI/HAPUS status ini sesuai kondisi kamu -->
+      <span class="status-badge"><span class="status-dot"></span>Open to Collab</span>
+      <!-- JAM LOKAL REAL-TIME — diisi otomatis oleh JS (lihat "LOCAL CLOCK" di script.js). GANTI nama kota di sini dan
+           zona waktunya di script.js kalau perlu. -->
+      <span class="status-badge time-badge" id="localTimeBadge" title="Waktu lokal"><span class="tb-place">Tangerang, ID</span><span class="tb-gmt"> (GMT+7)</span><span class="tb-sep"> • </span><span class="tb-time" id="localTime">--.-- WIB</span></span>
+      <!-- MODE PRESENTASI — sembunyiin semua tombol/navigasi biar tampilan bersih (Esc buat keluar) -->
+      <!-- TOMBOL BAHASA (ID/EN) & PANDUAN (?) — teks terjemahan ada di i18n.js, isi panduan juga di i18n.js (GUIDE_DATA) -->
+      <button class="present-btn lang-quick" id="langBtn" type="button" aria-label="Ganti bahasa" title="Bahasa / Language"><span id="langBtnLabel">ID</span></button>
+      <button class="present-btn guide-quick" id="guideBtn" type="button" aria-label="Panduan" title="Panduan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2 1-1.2 1.9M12 17h.01"/></svg></button>
+      <button class="present-btn" id="presentBtn" type="button" aria-label="Mode presentasi" title="Mode Presentasi (P)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <div class="profile-dot">AS</div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== FULLSCREEN NAV ===================== -->
+<div class="overlay" id="navOverlay">
+  <!-- blob dekoratif yang perlahan gerak sendiri di belakang menu, biar gak kerasa kaku -->
+  <div class="overlay-decor" aria-hidden="true"><span class="overlay-blob b1"></span><span class="overlay-blob b2"></span></div>
+  <div class="overlay-top">
+    <!-- JAM + SAPAAN — murni dekorasi, diisi otomatis oleh JS (lihat "OVERLAY CLOCK" di script.js),
+         gak perlu diubah apapun di sini. -->
+    <div class="overlay-clock" id="overlayClock" aria-hidden="true"></div>
+    <button class="close-btn" id="menuClose">CLOSE ✕</button>
+  </div>
+  <nav class="menu-grid">
+    <a href="#hero" class="menu-item"><span class="menu-num">01</span><span class="menu-text">HOME</span><span class="menu-arrow">→</span></a>
+    <a href="#about" class="menu-item"><span class="menu-num">02</span><span class="menu-text">ABOUT ME<small>Profil singkat</small></span><span class="menu-arrow">→</span></a>
+    <a href="#projects" class="menu-item"><span class="menu-num">03</span><span class="menu-text">PROJECTS</span><span class="menu-arrow">→</span></a>
+    <a href="#skills" class="menu-item"><span class="menu-num">04</span><span class="menu-text">SKILLS</span><span class="menu-arrow">→</span></a>
+    <a href="#media" class="menu-item"><span class="menu-num">05</span><span class="menu-text">MEDIA</span><span class="menu-arrow">→</span></a>
+    <a href="#achievements" class="menu-item"><span class="menu-num">06</span><span class="menu-text">ACHIEVEMENTS</span><span class="menu-arrow">→</span></a>
+    <a href="#connections" class="menu-item"><span class="menu-num">07</span><span class="menu-text">CONNECTIONS</span><span class="menu-arrow">→</span></a>
+    <a href="#testimonials" class="menu-item"><span class="menu-num">08</span><span class="menu-text">TESTIMONIALS<small>Kata mereka</small></span><span class="menu-arrow">→</span></a>
+    <a href="#contact" class="menu-item"><span class="menu-num">09</span><span class="menu-text">CONTACT</span><span class="menu-arrow">→</span></a>
+  </nav>
+  <!-- QUICK THEME — mini pilihan warna tema, sama persis isinya kaya di panel Settings (⚙), cuma
+       biar user bisa ganti warna tanpa harus buka panel Settings segala. GANTI/TAMBAH warnanya
+       samakan sama themeSwatches di bagian Settings & THEME_PRESETS di script.js. -->
+  <div class="overlay-quick-theme" id="overlayQuickTheme" aria-label="Ganti cepat warna tema">
+    <button class="theme-swatch" data-theme="blue" style="--sw1:#0A2E4F;--sw2:#D71920" aria-label="Biru" title="Biru"></button>
+    <button class="theme-swatch" data-theme="forest" style="--sw1:#0B2318;--sw2:#E8B33D" aria-label="Hijau Hutan" title="Hijau Hutan"></button>
+    <button class="theme-swatch" data-theme="violet" style="--sw1:#1A1033;--sw2:#FF6B6B" aria-label="Ungu Malam" title="Ungu Malam"></button>
+    <button class="theme-swatch" data-theme="graphite" style="--sw1:#16181D;--sw2:#D71920" aria-label="Graphite" title="Graphite"></button>
+    <button class="theme-swatch" data-theme="maroon" style="--sw1:#240D0F;--sw2:#F2B134" aria-label="Maroon" title="Maroon"></button>
+  </div>
+  <!-- GANTI LINK SOSIAL DI SINI (sama kaya di Contact/Footer) -->
+  <div class="overlay-bottom">
+    <div class="overlay-social">
+      <!-- Link di bawah ini OTOMATIS ngikutin link di section CONTACT (cukup edit di Contact) -->
+      <a href="#">GitHub</a>
+      <a href="#">Email</a>
+      <a href="#">WhatsApp</a>
+    </div>
+    <!-- "Lagi di" terisi otomatis sesuai section yang lagi keliatan di layar (lihat "OVERLAY CURRENT
+         SECTION" di script.js) -->
+    <div class="overlay-meta">XII TJKT 1 · SMKS Binong Permai · Rank 1 <span id="overlayCurrentSection"></span></div>
+  </div>
+</div>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="hero">
+  <!-- GANTI GAMBAR HERO DI SINI: taruh file images/hero-background.webp -->
+  <div class="ph hero-bg" data-label="hero-background.webp"><img src="images/hero-background.webp" alt="hero-background.webp" loading="eager" fetchpriority="high" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+
+  <!-- AURORA — 2 cahaya warna lembut yang melayang pelan di belakang judul, ikut warna tema aktif
+       (var(--accent)/var(--accent2)). Murni dekorasi, gak perlu diisi apapun. -->
+  <div class="hero-aura" aria-hidden="true"><span class="hero-aura-blob a1"></span><span class="hero-aura-blob a2"></span></div>
+
+  <!-- VIGNETTE — murni dekorasi, gelap tebal di bawah pas awal buka, lalu pudar sendiri pas discroll
+       (lihat "VIGNETTE SCROLL" di script.js). Gak perlu diubah/diisi apapun di sini. -->
+  <div class="hero-vignette" id="heroVignette" aria-hidden="true"></div>
+
+  <!-- PARTIKEL MELAYANG — murni dekorasi, titik-titik dibuat otomatis oleh JS (lihat "HERO PARTICLES" di script.js).
+       Tidak perlu diisi gambar apapun di sini. -->
+  <div class="hero-particles" id="heroParticles" aria-hidden="true"></div>
+
+  <!-- FOTO 3D DI SISI HERO — GANTI GAMBAR DI SINI: taruh file images/profile-3d.webp
+       (disarankan foto full-body dengan background transparan/di-crop biar nyatu sama hero).
+       Foto ini ikut miring 3D pas kursor digerakkan — bisa dimatikan user lewat ikon ⚙ di pojok. -->
+  <div class="hero-figure" id="heroFigure" aria-hidden="true">
+    <div class="hero-figure-glow"></div>
+    <div class="ph hero-figure-img" id="heroFigureImg" data-label="profile-3d.webp"><img src="images/profile-3d.webp" alt="" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+  </div>
+
+  <div class="wrap hero-grid">
+    <div>
+      <!-- EDIT TEXT DI SINI -->
+      <h1>ARKA<br>ARTHAND<br>SYACH</h1>
+    </div>
+    <div class="hero-sub">
+      <div class="hero-meta">
+        <span>XII TJKT 1</span><span>SMKS BINONG PERMAI</span><span>RANK 1</span>
+      </div>
+      <!-- EDIT TEXT DI SINI -->
+      <p>Siswa, penggemar teknologi, dan pembelajar kreatif yang fokus pada <span class="cycle-word" id="cycleWord">networking</span>.</p>
+    </div>
+  </div>
+
+  <!-- SCROLL CUE — panah kecil yang naik-turun pelan di bawah Hero, ngajak user scroll. Klik langsung
+       loncat ke section About. Otomatis diam (gak animasi) kalau reduced-motion/Master Toggle mati. -->
+  <a href="#about" class="hero-scroll-cue" aria-label="Scroll ke bawah">
+    <span class="hero-scroll-line"></span>
+    <span class="hero-scroll-arrow">↓</span>
+  </a>
+</section>
+
+<!-- ===================== THEME MUSIC PLAYER =====================
+     Pemutar lagu tema web, sengaja ditaruh LANGSUNG di bawah Hero (bukan di bawah-bawah) biar
+     orang gak perlu scroll buat nemu & dengerin.
+
+     CARA PASANG LAGU: taruh 3 file .mp3 di folder "audio/" (sejajar sama index.html/images/videos),
+     nama PERSIS: audio/theme-1.mp3, audio/theme-2.mp3, audio/theme-3.mp3. Ganti judulnya di
+     array "themeTracks" paling atas script.js. Belum ada filenya? Tombol play tetap muncul tapi
+     otomatis kasih tau "file belum ada" pas dipencet — gak bikin error/crash.
+
+     AVATAR: defaultnya helm robot orisinal (digambar CSS/SVG langsung, bukan jiplakan karakter
+     siapapun) yang nyala/berdenyut pas lagu diputar. Mau ganti sama foto sendiri? Ada 2 slot
+     opsional di bawah: GANTI gambar pas "idle" (belum diputar) & "playing" (lagi diputar) —
+     taruh file images/theme-avatar-idle.webp dan/atau images/theme-avatar-playing.webp.
+     PENTING: foto apapun yang kamu taruh di sini pastikan itu foto yang kamu punya hak pakainya
+     (foto sendiri/lisensi jelas) — jangan taruh foto orang lain (termasuk figur publik) tanpa izin. -->
+<section class="theme-player-section">
+  <div class="wrap">
+    <div class="theme-player-card" id="themePlayerCard">
+      <!-- Glow yang berdenyut ngikutin bass/volume lagu (diatur JS) -->
+      <div class="tp-glow" id="tpGlow" aria-hidden="true"></div>
+      <div class="tp-art" id="tpArt">
+        <span class="tp-ring" id="tpRing" aria-hidden="true"></span>
+        <!-- Piringan bulat: DIAM pas idle, MUTER pas lagu diputar -->
+        <div class="tp-disc">
+        <!-- Helm default — orisinal, jadi PLACEHOLDER buat foto mukamu nanti -->
+        <svg class="tp-helmet" viewBox="0 0 160 160" aria-hidden="true">
+          <defs>
+            <linearGradient id="tpHelmetShell" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3a4654"/><stop offset="100%" stop-color="#11161c"/>
+            </linearGradient>
+            <linearGradient id="tpVisor" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="var(--accent2)"/><stop offset="100%" stop-color="var(--accent)"/>
+            </linearGradient>
+          </defs>
+          <path d="M80 14c34 0 56 24 58 54 1 20-4 36-14 48-4 5-10 8-16 8H52c-6 0-12-3-16-8-10-12-15-28-14-48 2-30 24-54 58-54Z" fill="url(#tpHelmetShell)"/>
+          <path d="M40 92c6 20 20 32 40 32s34-12 40-32c-10 8-24 13-40 13s-30-5-40-13Z" fill="#05070a"/>
+          <ellipse class="tp-visor" cx="80" cy="78" rx="40" ry="22" fill="url(#tpVisor)"/>
+          <rect x="44" y="72" width="72" height="5" rx="2.5" fill="rgba(255,255,255,.35)"/>
+        </svg>
+        <!-- GANTI (opsional): foto/avatar custom pas IDLE — images/theme-avatar-idle.webp (taruh foto mukamu di sini) -->
+        <div class="ph tp-avatar tp-avatar-idle" data-label="theme-avatar-idle.webp"><img src="images/theme-avatar-idle.webp" alt="" loading="lazy" onload="this.parentElement.classList.add('has-img'); this.closest('.tp-art').classList.add('tp-has-custom')" onerror="this.remove()"></div>
+        <!-- GANTI (opsional): foto/avatar custom pas MUSIK DIPUTAR — images/theme-avatar-playing.webp -->
+        <div class="ph tp-avatar tp-avatar-playing" data-label="theme-avatar-playing.webp"><img src="images/theme-avatar-playing.webp" alt="" loading="lazy" onload="this.parentElement.classList.add('has-img'); this.closest('.tp-art').classList.add('tp-has-custom')" onerror="this.remove()"></div>
+        </div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-meta">
+          <!-- ikon equalizer SIMETRIS (kiri-kanan & atas-bawah dari tengah) -->
+          <span class="tp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <div class="tp-eyebrow">Theme Music</div>
+          <span class="tp-count" id="tpCount">1 / 3</span>
+        </div>
+        <div class="tp-toprow">
+          <!-- Tombol INFINITE: nyala = semua lagu diulang terus tanpa henti -->
+          <button class="tp-icon-btn tp-loop on" id="tpLoop" type="button" aria-label="Ulangi semua lagu terus-menerus" aria-pressed="true" title="Ulangi semua lagu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12c-2-2.8-3.6-4.5-5.8-4.5a4.5 4.5 0 1 0 0 9c2.2 0 3.8-1.7 5.8-4.5s3.6-4.5 5.8-4.5a4.5 4.5 0 1 1 0 9c-2.2 0-3.8-1.7-5.8-4.5z"/></svg></button>
+          <!-- Judul ikut array themeTracks di script.js, gak perlu diedit manual di sini -->
+          <div class="tp-title" id="tpTrackTitle">Memuat…</div>
+          <button class="tp-icon-btn tp-like" id="tpLike" type="button" aria-label="Suka lagu ini" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
+        </div>
+        <!-- Waveform = sekaligus progress lagu (bagian merah = sudah diputar). Klik/geser buat loncat. -->
+        <div class="tp-waveform" id="tpWaveform" role="slider" tabindex="0" aria-label="Posisi lagu" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        <div class="tp-times"><span id="tpTimeCurrent">0:00</span><span id="tpTimeTotal">0:00</span></div>
+        <div class="tp-controls">
+          <button id="tpPrev" type="button" aria-label="Lagu sebelumnya"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6zM20 6v12L9.5 12z"/></svg></button>
+          <button id="tpPlay" type="button" aria-label="Play/Pause"><span id="tpPlayIcon"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <button id="tpNext" type="button" aria-label="Lagu berikutnya"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2zM4 6l10.5 6L4 18z"/></svg></button>
+        </div>
+        <!-- Daftar lagu (playlist) — diisi otomatis dari array themeTracks di script.js -->
+        <ol class="tp-playlist" id="tpPlaylist"></ol>
+      </div>
+    </div>
+  </div>
+  <audio id="tpAudio" preload="none"></audio>
+</section>
+
+<!-- ===================== MARQUEE ===================== -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>NETWORKING</span><span class="dot">•</span><span>WEB DEVELOPMENT</span><span class="dot">•</span><span>MIKROTIK</span><span class="dot">•</span><span>PC HARDWARE</span><span class="dot">•</span><span>CREATIVE EDITING</span><span class="dot">•</span><span>XII TJKT 1</span><span class="dot">•</span>
+    <span>NETWORKING</span><span class="dot">•</span><span>WEB DEVELOPMENT</span><span class="dot">•</span><span>MIKROTIK</span><span class="dot">•</span><span>PC HARDWARE</span><span class="dot">•</span><span>CREATIVE EDITING</span><span class="dot">•</span><span>XII TJKT 1</span><span class="dot">•</span>
+  </div>
+</div>
+
+<!-- ===================== ABOUT ===================== -->
+<section class="section-off" id="about">
+  <div class="section-decor on-light" aria-hidden="true"><span class="sd-blob sd1"></span><span class="sd-blob sd2"></span></div>
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <div class="eyebrow">Profil</div>
+      <h2 style="margin-bottom:20px">ABOUT ME</h2>
+      <div class="about-lead"><p>Fokus pada jaringan, pengembangan web, dan perangkat keras komputer — dengan pencapaian Rank 1 di kelas.</p></div>
+      <div class="focus-list">
+        <span>Networking</span><span>Web Development</span><span>Computer Hardware</span><span>MikroTik</span><span>Creative Digital Projects</span>
+      </div>
+      <!-- EDIT ANGKA STATS DI SINI: ubah data-count sesuai pencapaian terbaru -->
+      <div class="about-stats">
+        <div class="stat"><span class="stat-num stat-animate" data-count="5">0</span><span class="stat-label">Semester Rank 1</span></div>
+        <div class="stat"><span class="stat-num stat-animate" data-count="14">0</span><span class="stat-label">Riwayat Peringkat</span></div>
+        <div class="stat"><span class="stat-num stat-animate" data-count="6">0</span><span class="stat-label">Proyek Dikerjakan</span></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <dl class="about-facts">
+        <div><dt>NAMA</dt><dd>Arka Arthand Syach</dd></div>
+        <div><dt>SEKOLAH</dt><dd>SMKS Binong Permai</dd></div>
+        <div><dt>KELAS</dt><dd>XII TJKT 1</dd></div>
+        <div><dt>ACHIEVEMENT</dt><dd>Rank 1 di kelas</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CAROUSEL ===================== -->
+<section id="carousel-section">
+  <div class="wrap">
+    <div class="carousel-head reveal">
+      <h2 style="margin-bottom:0">HIGHLIGHTS</h2>
+      <div class="carousel-nav">
+        <button id="carPrev" aria-label="Sebelumnya">←</button>
+        <button id="carNext" aria-label="Berikutnya">→</button>
+      </div>
+    </div>
+    <div class="carousel" id="carousel">
+      <!-- GANTI GAMBAR CARD DI SINI -->
+      <article class="card tilt-card" data-detail="achievements"><div class="ph" data-label="achievement.webp"><img src="images/achievement.webp" alt="achievement.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="card-body"><div class="card-tag">01</div><div class="card-title">Achievements</div><p class="card-desc">Rank 1 di kelas XII TJKT 1.</p><div class="card-view">VIEW →</div></div></article>
+      <article class="card tilt-card" data-detail="connections"><div class="ph" data-label="connections.webp"><img src="images/connections.webp" alt="connections.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="card-body"><div class="card-tag">02</div><div class="card-title">Connections</div><p class="card-desc">Sekolah, kelas, dan relasi profesional.</p><div class="card-view">VIEW →</div></div></article>
+      <article class="card tilt-card" data-detail="suggestions"><div class="ph" data-label="suggestions.webp"><img src="images/suggestions.webp" alt="suggestions.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="card-body"><div class="card-tag">03</div><div class="card-title">Suggestions</div><p class="card-desc">Rekomendasi dan target ke depan.</p><div class="card-view">VIEW →</div></div></article>
+      <article class="card tilt-card" data-detail="trophies"><div class="ph" data-label="trophies.webp"><img src="images/trophies.webp" alt="trophies.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="card-body"><div class="card-tag">04</div><div class="card-title">Trophies</div><p class="card-desc">Sertifikat dan penghargaan.</p><div class="card-view">VIEW →</div></div></article>
+      <article class="card tilt-card" data-detail="projects"><div class="ph" data-label="project-1.webp"><img src="images/project-1.webp" alt="project-1.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="card-body"><div class="card-tag">05</div><div class="card-title">Projects</div><p class="card-desc">Proyek networking dan web.</p><div class="card-view">VIEW →</div></div></article>
+      <article class="card tilt-card" data-detail="skills"><div class="ph" data-label="skills.webp"><img src="images/skills.webp" alt="skills.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="card-body"><div class="card-tag">06</div><div class="card-title">Skills</div><p class="card-desc">HTML, CSS, JavaScript, MikroTik.</p><div class="card-view">VIEW →</div></div></article>
+    </div>
+    <!-- SLIDER HIGHLIGHTS — geser untuk berpindah kartu (sinkron dengan carousel di atas, lihat "CAROUSEL SLIDER" di script.js) -->
+    <div class="carousel-slider" id="carSliderWrap">
+      <input type="range" id="carSlider" min="0" max="100" value="0" step="1" aria-label="Geser untuk melihat kartu">
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PROJECTS ===================== -->
+<section class="section-navy" id="projects">
+  <div class="section-decor on-navy" aria-hidden="true"><span class="sd-blob sd1"></span><span class="sd-blob sd2"></span></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Karya</div>
+    <h2 class="reveal">PROJECTS</h2>
+    <!-- DETAIL LENGKAP tiap proyek (yang muncul di popup pas kartu diklik) ada di file projects-data.js -->
+    <div class="proj-grid">
+      <!-- GANTI GAMBAR PROJECT DI SINI -->
+      <article class="proj-item reveal tilt-card" data-project="mikrotik"><div class="ph" data-label="project-1.webp"><img src="images/project-1.webp" alt="project-1.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="proj-text"><div class="proj-cat">Networking — 2026</div><h3>MikroTik Configuration</h3><p>Konfigurasi jaringan dan routing menggunakan MikroTik untuk kebutuhan lab sekolah.</p><button class="proj-link" type="button">VIEW PROJECT <span class="arrow">→</span></button></div></article>
+      <article class="proj-item reveal tilt-card" data-project="website"><div class="ph" data-label="project-2.webp"><img src="images/project-2.webp" alt="project-2.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="proj-text"><div class="proj-cat">Web Development — 2026</div><h3>Website Project</h3><p>Membangun website responsif dengan HTML, CSS, dan JavaScript.</p><button class="proj-link" type="button">VIEW PROJECT <span class="arrow">→</span></button></div></article>
+      <article class="proj-item reveal tilt-card" data-project="arduino"><div class="ph" data-label="project-3.webp"><img src="images/project-3.webp" alt="project-3.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="proj-text"><div class="proj-cat">Hardware — 2026</div><h3>Arduino Ultrasonic Sensor</h3><p>Proyek sensor jarak berbasis Arduino untuk deteksi objek.</p><button class="proj-link" type="button">VIEW PROJECT <span class="arrow">→</span></button></div></article>
+      <article class="proj-item reveal tilt-card" data-project="editing"><div class="ph" data-label="project-4.webp"><img src="images/project-4.webp" alt="project-4.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="proj-text"><div class="proj-cat">Creative — 2026</div><h3>Creative Editing Project</h3><p>Proyek editing video dan konten kreatif digital.</p><button class="proj-link" type="button">VIEW PROJECT <span class="arrow">→</span></button></div></article>
+      <!-- SLOT PROYEK BARU: GANTI judul, kategori, deskripsi, gambar (project-5.webp) dan tags di projectDetail pada script.js -->
+      <article class="proj-item reveal tilt-card" data-project="project5"><div class="ph" data-label="project-5.webp"><img src="images/project-5.webp" alt="project-5.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="proj-text"><div class="proj-cat">VirtualBox - 2026</div><h3>Usage of Linux</h3><p>Penggunaan Linux dan VirtualBox yang lumayan mahir.</p><button class="proj-link" type="button">VIEW PROJECT <span class="arrow">→</span></button></div></article>
+      <!-- SLOT PROYEK BARU: GANTI judul, kategori, deskripsi, gambar (project-6.webp) dan tags di projectDetail pada script.js -->
+      <article class="proj-item reveal tilt-card" data-project="project6"><div class="ph" data-label="project-6.webp"><img src="images/project-6.webp" alt="project-6.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><div class="proj-text"><div class="proj-cat">Kategori — Tahun</div><h3>Usage and Making Of Computers</h3><p>Penggunaaan dan pembuatan Komputer yang mahir.</p><button class="proj-link" type="button">VIEW PROJECT <span class="arrow">→</span></button></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SKILLS ===================== -->
+<section id="skills">
+  <div class="wrap">
+    <div class="eyebrow reveal">Kemampuan</div>
+    <h2 class="reveal">SKILLS</h2>
+    <!-- GANTI LEVEL SKILL DI SINI: angka di data-level itu persen (0-100), itu yang nentuin
+         seberapa penuh bar-nya pas keliatan di layar. Gak perlu diisi manual, otomatis dianimasiin JS. -->
+    <div class="reveal">
+      <div class="skill-row" data-skill="web" data-level="90"><div class="skill-num">01</div><div><h3>WEB DEVELOPMENT</h3><p>HTML / CSS / JavaScript</p><div class="skill-bar"><span class="skill-bar-fill"></span></div></div></div>
+      <div class="skill-row" data-skill="networking" data-level="80"><div class="skill-num">02</div><div><h3>NETWORKING</h3><p>MikroTik / Network Configuration</p><div class="skill-bar"><span class="skill-bar-fill"></span></div></div></div>
+      <div class="skill-row" data-skill="hardware" data-level="75"><div class="skill-num">03</div><div><h3>HARDWARE</h3><p>PC Hardware / Troubleshooting</p><div class="skill-bar"><span class="skill-bar-fill"></span></div></div></div>
+      <div class="skill-row" data-skill="creative" data-level="70"><div class="skill-num">04</div><div><h3>CREATIVE</h3><p>Video Editing / After Effects</p><div class="skill-bar"><span class="skill-bar-fill"></span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MEDIA / YOUTUBE ===================== -->
+<section class="section-off" id="media">
+  <div class="wrap">
+    <div class="eyebrow reveal">Konten</div>
+    <h2 class="reveal">MEDIA</h2>
+
+    <!-- ===== VIDEO PILIHAN (FEATURED VIDEO) — CARA PASANG PALING GAMPANG =====
+         1. Buat folder "videos" di tempat yang SAMA dengan index.html (sejajar sama folder images/).
+         2. Taruh file video kamu di sana dengan nama PERSIS: featured-arka.mp4
+         3. Selesai — otomatis autoplay (tanpa suara dulu, user bisa unmute sendiri), muter ulang terus (loop).
+         Lihat file "CARA-PASANG-VIDEO.txt" di folder utama buat panduan lengkapnya.
+         Belum ada file videonya? Bagian ini otomatis sembunyi sendiri (gak nampilin kotak kosong). -->
+    <div class="featured-video-wrap reveal" id="featuredVideoArka">
+      <div class="eyebrow" style="margin-bottom:10px">Video Pilihan</div>
+      <div class="featured-video">
+        <video src="videos/featured-arka.mp4" muted loop playsinline controls preload="metadata"
+          onerror="this.closest('.featured-video-wrap').style.display='none'"></video>
+      </div>
+      <p class="featured-video-caption">Video pertama 1v1 UFC.</p>
+    </div>
+
+    <div class="media-channel reveal">
+      <div class="media-head">
+        <!-- GANTI FOTO PROFIL CHANNEL DI SINI: images/pfp-arka.webp -->
+        <div class="ph media-pfp" data-label="pfp-arka.webp"><img src="images/pfp-arka.webp" alt="pfp-arka.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+        <div>
+          <div class="media-channel-name">Arka BP Pengemudi</div>
+          <!-- EDIT JUMLAH SUBSCRIBER DI SINI -->
+          <div class="media-channel-handle">@CHANNELARKA67 · <!-- GANTI JUMLAH SUBSCRIBER --> 70 subscriber</div>
+        </div>
+      </div>
+      <a class="rb-cta" href="https://www.youtube.com/@CHANNELARKA67/featured" target="_blank" rel="noopener noreferrer">Kunjungi Channel</a>
+    </div>
+    <!-- GANTI THUMBNAIL, JUDUL, TANGGAL, VIEWS & LINK VIDEO DI SINI -->
+    <div class="media-grid reveal">
+      <a class="media-card" href="https://www.youtube.com/watch?v=kyFCzKq4Wn0&t=1s" target="_blank" rel="noopener noreferrer" data-video="1"><!-- GANTI LINK VIDEO (href) DI SINI -->
+        <div class="ph media-thumb" data-label="thumbnail-1.webp"><img src="images/thumbnail-1.webp" alt="thumbnail-1.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+        <div class="media-body">
+          <div class="media-tag">Video Terbaru</div>
+          <div class="media-title"><!-- GANTI JUDUL VIDEO -->Cara mengkonfigurasi minisipserver dengan sipnetic dan portsip agar dapat berkomunikasi</div>
+          <div class="media-meta"><span><!-- GANTI TANGGAL -->2 bulan lalu</span><span><!-- GANTI VIEWS --> 2 ditonton</span></div>
+        </div>
+      </a>
+      <a class="media-card" href="https://www.youtube.com/watch?v=U0YZrzvDD3Q&t=15s" target="_blank" rel="noopener noreferrer" data-video="2"><!-- GANTI LINK VIDEO (href) DI SINI -->
+        <div class="ph media-thumb" data-label="thumbnail-2.webp"><img src="images/thumbnail-2.webp" alt="thumbnail-2.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+        <div class="media-body">
+          <div class="media-tag">Video</div>
+          <div class="media-title"><!-- GANTI JUDUL VIDEO -->Cara konfigurasi PBX Admin, Mizu VOIP, 3CX Phone dan SIP Phone dan PortSIP</div>
+          <div class="media-meta"><span><!-- GANTI TANGGAL -->1 bulan lalu</span><span><!-- GANTI VIEWS --> 64 ditonton</span></div>
+        </div>
+      </a>
+      <a class="media-card" href="https://www.youtube.com/watch?v=8-5HYDm31gE&t=179s" target="_blank" rel="noopener noreferrer" data-video="3"><!-- GANTI LINK VIDEO (href) DI SINI -->
+        <div class="ph media-thumb" data-label="thumbnail-3.webp"><img src="images/thumbnail-3.webp" alt="thumbnail-3.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+        <div class="media-body">
+          <div class="media-tag">Video</div>
+          <div class="media-title"><!-- GANTI JUDUL VIDEO -->PKN 1</div>
+          <div class="media-meta"><span><!-- GANTI TANGGAL -->3 bulan lalu</span><span><!-- GANTI VIEWS --> 12 ditonton</span></div>
+        </div>
+      </a>
+    </div>
+    <div class="media-second-wrap reveal">
+      <div class="media-channel" style="margin-bottom:28px;">
+        <div class="media-head">
+          <!-- GANTI GAMBAR CHANNEL DI SINI -->
+          <div class="ph media-pfp" data-label="pfp-ano.webp"><img src="images/pfp-ano.webp" alt="pfp-ano.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+          <div>
+            <div class="media-channel-name">anomalitoetttoett</div>
+            <!-- EDIT JUMLAH SUBSCRIBER DI SINI -->
+            <div class="media-channel-handle">@ano.cc21 · <!-- GANTI JUMLAH SUBSCRIBER --> 52 subscriber</div>
+          </div>
+        </div>
+        <a class="rb-cta" href="https://www.youtube.com/@ano.cc21/shorts" target="_blank" rel="noopener noreferrer">Kunjungi Channel</a>
+      </div>
+      <p class="media-desc" style="max-width:620px; margin-bottom:32px;">I'm a Capcut and Alight Motion editor, I don't steal edits unlike many other mobile editors, all are made within the apps I use..</p>
+
+      <!-- VIDEO PILIHAN anomalitoetttoett — taruh file di videos/featured-ano.mp4 (sama caranya kaya video Arka di atas) -->
+      <div class="featured-video-wrap" id="featuredVideoAno">
+        <div class="eyebrow" style="margin-bottom:10px">Video Pilihan — anomalitoetttoett</div>
+        <div class="featured-video">
+          <video src="videos/featured-ano.mp4" muted loop playsinline controls preload="metadata"
+            onerror="this.closest('.featured-video-wrap').style.display='none'"></video>
+        </div>
+        <p class="featured-video-caption">GANTI caption singkat video pilihan di sini.</p>
+      </div>
+      <!-- MAU PAKAI LINK YOUTUBE? Hapus blok "featuredVideoAno" di atas, lalu hapus tanda komentar
+           di bawah ini dan ganti VIDEO_ID_ANO (ada 2 di baris src) dengan ID video YouTube kamu.
+      <div class="featured-video-wrap">
+        <div class="eyebrow" style="margin-bottom:10px">Video Pilihan — anomalitoetttoett</div>
+        <div class="featured-video">
+          <iframe src="https://www.youtube.com/embed/VIDEO_ID_ANO?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID_ANO&controls=1&rel=0"
+            title="Featured Video — anomalitoetttoett" loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+        <p class="featured-video-caption">GANTI caption singkat video pilihan di sini.</p>
+      </div>
+      -->
+
+      <!-- GANTI THUMBNAIL, JUDUL, TANGGAL, VIEWS & LINK VIDEO DI SINI -->
+      <div class="media-grid" style="margin-top:28px;">
+        <a class="media-card" href="https://www.youtube.com/@ano.cc21/shorts" target="_blank" rel="noopener noreferrer" data-video="ano1">
+          <div class="ph media-thumb" data-label="ano-thumbnail-1.webp"><img src="images/ano-thumbnail-1.webp" alt="ano-thumbnail-1.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+          <div class="media-body">
+            <div class="media-tag">Video Terbaru</div>
+            <div class="media-title"><!-- GANTI JUDUL VIDEO -->Hardest fight Khamzat had? IB: ZYZI</div>
+            <div class="media-meta"><span><!-- GANTI TANGGAL -->3 minggu lalu</span><span><!-- GANTI VIEWS -->2.716 ditonton</span></div>
+          </div>
+        </a>
+        <a class="media-card" href="https://www.youtube.com/@ano.cc21/shorts" target="_blank" rel="noopener noreferrer" data-video="ano2">
+          <div class="ph media-thumb" data-label="ano-thumbnail-2.webp"><img src="images/ano-thumbnail-2.webp" alt="ano-thumbnail-2.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+          <div class="media-body">
+            <div class="media-tag">Video</div>
+            <div class="media-title"><!-- GANTI JUDUL VIDEO -->Khamzat Chimaev UFC Edit | AINSI Bas La Vida</div>
+            <div class="media-meta"><span><!-- GANTI TANGGAL -->1 bulan lalu</span><span><!-- GANTI VIEWS -->1.770 ditonton</span></div>
+          </div>
+        </a>
+        <a class="media-card" href="https://www.youtube.com/@ano.cc21/shorts" target="_blank" rel="noopener noreferrer" data-video="ano3">
+          <div class="ph media-thumb" data-label="ano-thumbnail-3.webp"><img src="images/ano-thumbnail-3.webp" alt="ano-thumbnail-3.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+          <div class="media-body">
+            <div class="media-tag">Video</div>
+            <div class="media-title"><!-- GANTI JUDUL VIDEO -->Khabib vs Tony Ferguson | Prime | UFC Edit</div>
+            <div class="media-meta"><span><!-- GANTI TANGGAL -->1 bulan lalu</span><span><!-- GANTI VIEWS -->1.549 ditonton</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ACHIEVEMENTS ===================== -->
+<section class="section-navy" id="achievements">
+  <div class="section-decor on-navy" aria-hidden="true"><span class="sd-blob sd1"></span><span class="sd-blob sd2"></span></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Pencapaian</div>
+    <h2 class="reveal">ACHIEVEMENTS</h2>
+    <div class="ach-rb-wrap">
+      <div class="ach-rb-main reveal">
+        <button class="rb-nav-btn" id="achUp" aria-label="Sebelumnya">&#8593;</button>
+        <div class="rb-type">
+          <span class="rb-word">RANK</span><span class="rb-num" id="achBigNum">1</span>
+        </div>
+        <div class="rb-trophy-float" id="achTrophyFloat">
+          <div class="rb-trophy-stage" id="achTrophyStage" style="--t1:#fff6d8;--t2:#f0c04a;--t3:#8a5b12;--d1:#c9922c;--d2:#6b430c">
+            <div class="rb-trophy-glow"></div>
+            <div class="rb-trophy" id="achTrophySvg">
+              <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="trophyBowl" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" style="stop-color:var(--t1)"/>
+                    <stop offset="50%" style="stop-color:var(--t2)"/>
+                    <stop offset="100%" style="stop-color:var(--t3)"/>
+                  </linearGradient>
+                  <linearGradient id="trophyDark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" style="stop-color:var(--d1)"/>
+                    <stop offset="100%" style="stop-color:var(--d2)"/>
+                  </linearGradient>
+                </defs>
+                <path d="M90 30h120v34c0 56-30 92-60 92s-60-36-60-92Z" fill="url(#trophyBowl)"/>
+                <path d="M90 52c-42-2-46 66 8 76" stroke="url(#trophyDark)" stroke-width="14" fill="none" stroke-linecap="round"/>
+                <path d="M210 52c42-2 46 66-8 76" stroke="url(#trophyDark)" stroke-width="14" fill="none" stroke-linecap="round"/>
+                <rect x="138" y="154" width="24" height="54" fill="url(#trophyDark)"/>
+                <path d="M108 208h84l12 28H96Z" fill="url(#trophyBowl)"/>
+                <rect x="90" y="238" width="120" height="16" rx="4" fill="url(#trophyDark)"/>
+                <rect x="78" y="256" width="144" height="14" rx="4" fill="url(#trophyBowl)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="ach-rb-caption" id="achCaption">XII TJKT 1 · SMKS Binong Permai</div>
+        <button class="rb-nav-btn" id="achDown" aria-label="Berikutnya">&#8595;</button>
+      </div>
+      <div class="rb-panel reveal">
+        <div class="eyebrow">Periode</div>
+        <div class="rb-panel-title" id="panelTitle">XII TJKT 1<br>SMKS Binong Permai</div>
+        <div class="rb-stats">
+          <div><span class="rb-stat-label">Peringkat</span><span class="rb-stat-value" id="panelRank">1</span></div>
+          <div><span class="rb-stat-label">Total Riwayat</span><span class="rb-stat-value" id="panelTotal">14</span></div>
+        </div>
+        <button class="rb-cta" id="achMoreBtn">More Details</button>
+      </div>
+    </div>
+    <!-- JOURNEY TIMELINE — otomatis dirender dari array achHistory di script.js, klik titik buat loncat -->
+    <div class="journey-track reveal" id="journeyTrack"></div>
+  </div>
+</section>
+
+<!-- ===================== CONNECTIONS + TROPHIES ===================== -->
+<section class="section-off" id="connections">
+  <div class="wrap">
+    <div class="eyebrow reveal">Relasi</div>
+    <h2 class="reveal">CONNECTIONS</h2>
+    <div class="conn-hero reveal" id="connHero">
+      <h3 id="connTitle">SMKS Binong Permai</h3>
+      <span id="connSub">Kelas X – XII</span>
+      <dl class="conn-details" id="connDetails"></dl>
+    </div>
+    <div class="conn-pager reveal">
+      <button id="connPrev" aria-label="Sebelumnya">&lt;</button>
+      <span class="conn-count" id="connCount">01 / 03</span>
+      <button id="connNext" aria-label="Berikutnya">&gt;</button>
+    </div>
+  </div>
+  <div class="wrap" style="margin-top:70px" id="trophies">
+    <div class="eyebrow reveal">Penghargaan</div>
+    <h2 class="reveal">TROPHIES</h2>
+    <div class="trophy-grid reveal">
+      <!-- GANTI DENGAN SERTIFIKAT / PENCAPAIAN — judul di .trophy-caption ikut diganti sesuai isi sertifikat -->
+      <figure class="trophy-item"><div class="ph light" data-label="sertifikat-1"><img src="images/sertifikat-1.webp" alt="sertifikat-1" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><figcaption class="trophy-caption">Nilai Sertifikat PKL</figcaption></figure>
+      <figure class="trophy-item"><div class="ph light" data-label="sertifikat-2"><img src="images/sertifikat-2.webp" alt="sertifikat-2" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><figcaption class="trophy-caption">Sertifikat S2C Juara 1</figcaption></figure>
+      <figure class="trophy-item"><div class="ph light" data-label="sertifikat-3"><img src="images/sertifikat-3.webp" alt="sertifikat-3" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><figcaption class="trophy-caption">Sertifikat Juara 1 kelas 11</figcaption></figure>
+      <figure class="trophy-item"><div class="ph light" data-label="sertifikat-4"><img src="images/sertifikat-4.webp" alt="sertifikat-4" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><figcaption class="trophy-caption">Sertifikat Juara 1 kelas 10</figcaption></figure>
+      <!-- SLOT BARU -->
+      <figure class="trophy-item"><div class="ph light" data-label="sertifikat-5"><img src="images/sertifikat-5.webp" alt="sertifikat-5" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div><figcaption class="trophy-caption">Surat Juara 1</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section class="section-off" id="testimonials">
+  <div class="section-decor on-light" aria-hidden="true"><span class="sd-blob sd1"></span><span class="sd-blob sd2"></span></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Kata Mereka</div>
+    <h2 class="reveal">TESTIMONIALS</h2>
+    <!-- GANTI testimoni di bawah dengan kutipan asli dari guru/teman — jangan tampilkan kutipan buatan sebagai kata-kata orang sungguhan -->
+    <div class="testimonial-grid">
+      <figure class="testimonial-card reveal tilt-card">
+        <blockquote>"Bagus gajelas."</blockquote>
+        <figcaption><span class="t-name">12 TJKT 1</span><span class="t-role">Teman — Khoirul Ibad</span></figcaption>
+      </figure>
+      <figure class="testimonial-card reveal tilt-card">
+        <blockquote>"Ngaco bocah."</blockquote>
+        <figcaption><span class="t-name">12 TJKT 1</span><span class="t-role">Diri sendiri — Arka Arthand Syach</span></figcaption>
+      </figure>
+      <figure class="testimonial-card reveal tilt-card">
+        <blockquote>"Arka coba liat dong nomor 1."</blockquote>
+        <figcaption><span class="t-name">12 TJKT 1</span><span class="t-role">Teman — Yusuf Alifieano</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section class="section-navy" id="contact">
+  <div class="section-decor on-navy" aria-hidden="true"><span class="sd-blob sd1"></span><span class="sd-blob sd2"></span></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Hubungi</div>
+    <h2 class="reveal">CONTACT</h2>
+    <div class="reveal">
+      <h3 style="font-family:var(--font-d); font-weight:800; font-size:1.6rem; margin-bottom:6px;">Arka Arthand Syach</h3>
+      <p style="color:rgba(255,255,255,.6)">SMKS Binong Permai — XII TJKT 1</p>
+      <div class="contact-links">
+        <!-- GANTI LINK GITHUB DI SINI: ganti tanda # di href dengan link profil GitHub kamu, contoh: href="https://github.com/usernamekamu" -->
+        <a href="https://github.com/webarka1/webportofolio" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <!-- GANTI LINK EMAIL DI SINI: ganti EMAILKAMU@gmail.com dengan alamat email kamu. Pakai "mailto:" jadi pas diklik otomatis kebuka aplikasi email (Gmail dll) dengan alamat & subjek yang sudah terisi — gak perlu setting apa-apa lagi. -->
+        <a href="mailto:arkaarthandsyach21@gmail.com?subject=Halo%20Arka&body=Halo%20Arka%2C%20saya%20ingin%20menghubungi%20kamu...">Email</a>
+        <!-- WHATSAPP: langsung ke WA pribadi (62 + nomor tanpa angka 0 di depan). Ganti nomor kalau perlu; teks setelah ?text= adalah pesan awal otomatisnya -->
+        <a href="https://wa.me/6285119105268?text=Halo%20Arka%2C%20saya%20lihat%20portofolio%20kamu." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      </div>
+      <!-- GANTI PATH FILE CV DI SINI: taruh file PDF di folder files/ dengan nama PERSIS: CV-Arka-Arthand-Syach.pdf — pas tombol ini diklik, PDF CV kamu langsung terunduh (atribut "download"). Mau nama file lain? Ganti di href. -->
+      <a class="rb-cta" style="display:inline-block; margin-top:28px;" href="files/CV-Arka-Arthand-Syach.pdf" download>Download CV</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <!-- GANTI FOTO DI SINI: images/footer-photo.webp -->
+        <div class="ph footer-photo" data-label="footer-photo.webp"><img src="images/footer-photo.webp" alt="footer-photo.webp" loading="lazy" onload="this.parentElement.classList.add('has-img')" onerror="this.remove()"></div>
+      </div>
+      <div>
+        <div class="footer-brand">Arka Arthand Syach</div>
+        <p style="max-width:420px; line-height:1.6;">XII TJKT 1, SMKS Binong Permai. Terbuka untuk kolaborasi proyek jaringan, web development, maupun editing kreatif.</p>
+        <div class="footer-wa">
+          <!-- GANTI NOMOR WA BISNIS DI SINI -->
+          <a href="https://wa.me/6281280458402" target="_blank" rel="noopener noreferrer">WA Bisnis — 0812-8045-8402</a>
+          <!-- GANTI NOMOR WA PRIBADI DI SINI -->
+          <a href="https://wa.me/6285119105268" target="_blank" rel="noopener noreferrer">WA Pribadi — 0851-1910-5268</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>ARKA ARTHAND SYACH — XII TJKT 1, SMKS Binong Permai</span>
+      <span>© 2026 Arka Arthand Syach</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== SETTINGS PANEL (ganti warna tema & toggle efek 3D) ===================== -->
+<button class="settings-btn" id="settingsBtn" aria-label="Pengaturan tampilan">⚙</button>
+<div class="settings-overlay" id="settingsOverlay"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-head">
+    <span>Pengaturan Tampilan</span>
+    <button class="settings-close" id="settingsClose" aria-label="Tutup">✕</button>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Mode Tampilan</div>
+    <div class="mode-switch" id="modeSwitch">
+      <button class="mode-btn" data-mode="light">☀ Terang</button>
+      <button class="mode-btn" data-mode="dark">● Gelap</button>
+      <button class="mode-btn" data-mode="auto">◐ Otomatis</button>
+    </div>
+    <p class="settings-hint">Otomatis = ikut setting terang/gelap HP atau laptop kamu.</p>
+  </div>
+
+  <!-- PILIHAN BAHASA — terjemahan ada di i18n.js -->
+  <div class="settings-group">
+    <div class="settings-label">Bahasa</div>
+    <div class="mode-switch">
+      <button class="lang-pick" data-lang="id" type="button">Indonesia</button>
+      <button class="lang-pick" data-lang="en" type="button">English</button>
+    </div>
+    <p class="settings-hint">Pilihan bahasa tersimpan otomatis.</p>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Tema Warna</div>
+    <!-- GANTI/TAMBAH preset warna di sini kalau mau: samakan dengan THEME_PRESETS di script.js -->
+    <div class="theme-swatches" id="themeSwatches">
+      <button class="theme-swatch" data-theme="blue" style="--sw1:#0A2E4F;--sw2:#D71920" aria-label="Biru (Default)" title="Biru (Default)"></button>
+      <button class="theme-swatch" data-theme="forest" style="--sw1:#0B2318;--sw2:#E8B33D" aria-label="Hijau Hutan" title="Hijau Hutan"></button>
+      <button class="theme-swatch" data-theme="violet" style="--sw1:#1A1033;--sw2:#FF6B6B" aria-label="Ungu Malam" title="Ungu Malam"></button>
+      <button class="theme-swatch" data-theme="graphite" style="--sw1:#16181D;--sw2:#D71920" aria-label="Graphite" title="Graphite"></button>
+      <button class="theme-swatch" data-theme="maroon" style="--sw1:#240D0F;--sw2:#F2B134" aria-label="Maroon" title="Maroon"></button>
+    </div>
+    <div class="theme-custom">
+      <label>Warna Dasar <input type="color" id="customNavy" value="#0A2E4F" aria-label="Warna dasar kustom"></label>
+      <label>Warna Aksen <input type="color" id="customAccent" value="#D71920" aria-label="Warna aksen kustom"></label>
+    </div>
+    <button class="settings-reset" id="themeReset">Reset ke Biru (Default)</button>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Efek Interaktif</div>
+    <label class="settings-toggle">
+      <input type="checkbox" id="tilt3dToggle" checked>
+      <span>Foto 3D ikut gerakan kursor</span>
+    </label>
+    <p class="settings-hint">Kalau dimatikan, foto di Hero tetap tampil tapi diam — gak ikut gerakan mouse. Website tetap normal seperti biasa.</p>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Animasi</div>
+    <label class="settings-toggle">
+      <input type="checkbox" id="animationsToggle" checked>
+      <span>Aktifkan Seluruh Animasi UI</span>
+    </label>
+    <p class="settings-hint">Kalau dimatikan, semua efek gerak (muncul pas scroll, vignette, shimmer judul, dll) langsung tampil diam di tempat tanpa animasi — web tetap jalan normal, cuma lebih "kaku" dan ringan.</p>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Performa</div>
+    <label class="settings-toggle">
+      <input type="checkbox" id="liteToggle">
+      <span>Mode Ringan (HP / laptop low-end)</span>
+    </label>
+    <p class="settings-hint">Mengurangi efek yang paling berat (partikel global, blur, zoom background) tanpa mengubah tampilan utama. Otomatis nyala di perangkat yang terdeteksi lemah/ngelag — bisa kamu matikan di sini.</p>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Video Pilihan</div>
+    <label class="settings-toggle">
+      <input type="checkbox" id="videoAutoplayToggle" checked>
+      <span>Putar otomatis Video Pilihan</span>
+    </label>
+    <p class="settings-hint">Kalau dimatikan, video di section Media gak jalan sendiri — tinggal tekan play. Kalau nyala, video hanya diputar saat terlihat di layar (hemat baterai & kuota).</p>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Mode Presentasi</div>
+    <button class="rb-cta" id="presentToggleBtn" type="button" style="width:100%">Mulai Mode Presentasi</button>
+    <p class="settings-hint">Menyembunyikan semua tombol & navigasi supaya tampilan bersih dan layar penuh — cocok buat proyektor. Keluar dengan tombol Esc, atau tombol kecil yang muncul di atas layar.</p>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Panduan & Bantuan</div>
+    <button class="rb-cta" id="settingsGuideBtn" type="button" style="width:100%">Buka Panduan</button>
+    <button class="settings-reset" id="welcomeAgainBtn" type="button">Tampilkan Panduan Awal Lagi</button>
+    <p class="settings-hint">Berisi cara mematikan musik, animasi, mode ringan, dan penjelasan semua fitur web.</p>
+  </div>
+</div>
+
+<!-- ===================== BACK TO TOP ===================== -->
+<button class="back-to-top" id="backToTop" aria-label="Kembali ke atas">↑</button>
+
+<!-- PENANDA POSISI BACA (scroll spy) — garis + titik melayang di sisi kanan, ikut section yang lagi dibaca.
+     Isinya dibuat otomatis oleh JS (lihat "SIDE NAV" di script.js). Cuma tampil di layar lebar. -->
+<nav class="side-nav" id="sideNav" aria-label="Posisi baca"><span class="side-nav-line"><span class="side-nav-fill" id="sideNavFill"></span></span><ul id="sideNavList"></ul></nav>
+
+<!-- MODE PRESENTASI: tombol keluar kecil + pesan singkat (muncul otomatis, lihat "PRESENTATION MODE" di script.js) -->
+<button class="present-exit" id="presentExit" type="button">✕ Keluar Mode Presentasi</button>
+<div class="present-toast" id="presentToast" role="status" aria-live="polite">Mode Presentasi aktif — tekan Esc untuk keluar</div>
+
+<!-- PARTIKEL GLOBAL — titik cahaya kecil yang melayang pelan di SELURUH halaman (bukan cuma Hero),
+     posisinya fixed jadi tetap kelihatan di background section manapun pas discroll. Murni dekorasi,
+     dibuat otomatis oleh JS (lihat "GLOBAL PARTICLES" di script.js), gak perlu diisi apapun di sini.
+     Otomatis sembunyi kalau prefers-reduced-motion aktif atau Master Toggle Animasi dimatikan. -->
+<div class="global-particles" id="globalParticles" aria-hidden="true"></div>
+
+<!-- ===================== DETAIL OVERLAY ===================== -->
+<button class="detail-close" id="detailClose" style="display:none;">CLOSE ✕</button>
+<div class="detail" id="detailView">
+  <div class="detail-inner" id="detailInner"></div>
+</div>
+
+<!-- ===================== PANDUAN AWAL (muncul sekali di kunjungan pertama, bisa dibuka lagi dari Pengaturan) =====================
+     Isinya: pilih bahasa + pilih performa (Normal / Ringan / Sangat Ringan) biar web gak ngelag di HP. Pilihan tersimpan otomatis. -->
+<div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="welcome-card">
+    <h3 id="welcomeTitle">Selamat datang 👋</h3>
+    <p class="welcome-sub">Atur dulu biar web nyaman dipakai di perangkatmu. Pilihan ini tersimpan otomatis dan bisa diubah kapan saja.</p>
+    <div class="welcome-label">Bahasa</div>
+    <div class="mode-switch">
+      <button class="lang-pick" data-lang="id" type="button">Indonesia</button>
+      <button class="lang-pick" data-lang="en" type="button">English</button>
+    </div>
+    <div class="welcome-label">Performa</div>
+    <div class="welcome-opts" id="welcomePerf">
+      <button type="button" class="welcome-opt" data-perf="normal"><b>Normal</b><span>Semua efek & animasi aktif. Cocok untuk laptop / HP yang kencang.</span></button>
+      <button type="button" class="welcome-opt" data-perf="lite"><b>Ringan</b><span>Kurangi efek berat. Disarankan kalau HP agak ngelag.</span></button>
+      <button type="button" class="welcome-opt" data-perf="min"><b>Sangat Ringan</b><span>Tanpa animasi sama sekali. Paling mulus untuk perangkat lawas.</span></button>
+    </div>
+    <button class="rb-cta welcome-go" id="welcomeGo" type="button">Mulai Jelajahi</button>
+    <p class="welcome-note">Butuh bantuan? Tekan tombol ? di pojok atas kapan saja.</p>
+  </div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="projects-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
