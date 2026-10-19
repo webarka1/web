@@ -829,7 +829,7 @@ document.querySelectorAll('.featured-video video').forEach(video=>{
 // GANTI JUDUL/FILE LAGU DI SINI: urutan array ini yang nentuin urutan prev/next.
 // File-nya sendiri ditaruh di folder audio/ (lihat komentar panduan di index.html bagian ini).
 const themeTracks=[
-  {title:'BloodPop x Vacation School', src:'audio/theme-1.mp3'},
+  {title:'BloodPop Short', src:'audio/theme-1.mp3'},
   {title:'Arka Walkout Theme', src:'audio/theme-2.mp3'},
   {title:'Paparazzi Short', src:'audio/theme-3.mp3'}
 ];
