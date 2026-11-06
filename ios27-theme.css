@@ -1,0 +1,155 @@
+/* =====================================================
+   TEMA iOS 27 (Liquid Glass) — tema TERPISAH total dari tema utama. Aktif lewat ⚙ → "Tema iOS 27".
+   Konsep: wallpaper warna-warni yang bergerak pelan di SELURUH halaman, semua section transparan,
+   semua kartu/tombol/menu jadi gelembung kaca (blur kuat + tepi bercahaya + sorotan specular),
+   sudut super bulat, tombol kapsul dengan animasi pegas. Slider Clear↔Tinted → --lg-a / --lg-blur.
+   Kartu 3D (.tilt-card) blur-nya ditaruh di ::before supaya efek 3D tidak rusak.
+   ===================================================== */
+html.ios27{
+  --font-d:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; --font-b:var(--font-d);
+  --accent:#0A84FF; --accent2:#BF5AF2; --navy:#0B0E2E; --navy2:rgba(255,255,255,.12);
+  --surface:rgba(255,255,255,.14); --surface-alt:rgba(255,255,255,.07);
+  --ink:#fff; --ink-muted:rgba(255,255,255,.74); --ink-faint:rgba(255,255,255,.55); --line:rgba(255,255,255,.22); --line-soft:rgba(255,255,255,.14);
+  --lg-a:.30; --lg-blur:21px; --green:#30D158; --r:34px; --r-sm:22px; color-scheme:dark;
+  --glass:radial-gradient(120% 90% at 0% 0%,rgba(255,255,255,calc(.14 + var(--lg-a)*.35)),transparent 60%),linear-gradient(160deg,rgba(255,255,255,calc(.12 + var(--lg-a)*.38)),rgba(255,255,255,calc(.05 + var(--lg-a)*.18)));
+  --edge:inset 0 0 0 1px rgba(255,255,255,.26),inset 0 1.5px 1px rgba(255,255,255,.6),inset 0 -1.5px 1px rgba(255,255,255,.12),0 18px 44px rgba(18,8,60,.30);
+  --bf:blur(var(--lg-blur)) saturate(185%) brightness(1.08);
+  background:#2a1b6e;
+}
+/* ===== WALLPAPER bergerak di belakang semuanya ===== */
+html.ios27 body{background:transparent; letter-spacing:-.011em; color:#fff;}
+html.ios27 body::before{content:''; position:fixed; inset:-10%; z-index:-1; pointer-events:none;
+  background:radial-gradient(45% 40% at 18% 20%,#2f7bff 0,transparent 70%),radial-gradient(40% 38% at 85% 15%,#c04cff 0,transparent 70%),
+    radial-gradient(45% 42% at 78% 80%,#ff4f8b 0,transparent 70%),radial-gradient(40% 40% at 15% 85%,#16c2ff 0,transparent 70%),
+    radial-gradient(35% 30% at 50% 50%,#ff9a4d 0,transparent 75%),linear-gradient(160deg,#3b2c9e,#2a1b6e);
+  filter:saturate(1.15); animation:iosWall 26s ease-in-out infinite alternate;}
+html.ios27.dark body::before{background:radial-gradient(45% 40% at 18% 20%,#1a45b8 0,transparent 70%),radial-gradient(40% 38% at 85% 15%,#6b21c8 0,transparent 70%),
+    radial-gradient(45% 42% at 78% 80%,#b0245f 0,transparent 70%),radial-gradient(40% 40% at 15% 85%,#0a6fa8 0,transparent 70%),linear-gradient(160deg,#0b0b2a,#05050f);}
+@keyframes iosWall{from{transform:translate3d(-2%,-1%,0) scale(1);}to{transform:translate3d(2%,2%,0) scale(1.08);}}
+html.ios27.animations-off body::before, html.ios27.perf-lite body::before{animation:none;}
+@media(prefers-reduced-motion:reduce){ html.ios27 body::before{animation:none;} }
+/* semua section transparan → wallpaper kelihatan */
+html.ios27 :is(.section-navy,.section-off,#skills,#carousel-section,footer,.theme-player-section){background:transparent!important; color:#fff;}
+html.ios27 :is(.section-decor,.cursor-glow,.global-particles,.hero-particles,.marquee,.rb-trophy-glow,.side-nav){display:none!important;}
+html.ios27 .hero-vignette{opacity:.55;}
+
+/* ===== TIPOGRAFI ===== */
+html.ios27 h2{font-weight:700; letter-spacing:-.035em; text-transform:lowercase; text-shadow:0 2px 20px rgba(20,0,80,.35);}
+html.ios27 h2::first-letter{text-transform:uppercase;}
+html.ios27 :is(h1,h3,.card-title,.brand,.menu-text){font-weight:700; letter-spacing:-.03em;}
+html.ios27 .eyebrow, html.ios27 .section-navy .eyebrow{padding-left:0; color:rgba(255,255,255,.7); font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-size:.72rem;}
+html.ios27 .eyebrow::before, html.ios27 .eyebrow::after{display:none;}
+
+/* ===== GELEMBUNG KACA: elemen biasa ===== */
+html.ios27 :is(.about-facts,.stat,.conn-hero,.rb-panel,.media-card,.media-channel,.theme-player-card,.skill-group,.trophy-item .ph.light,#skills .wrap>.reveal:last-child,.journey-track,.settings-group){
+  background:var(--glass); border:0; border-radius:var(--r); box-shadow:var(--edge); -webkit-backdrop-filter:var(--bf); backdrop-filter:var(--bf);}
+/* ===== GELEMBUNG KACA: kartu 3D — blur di ::before, elemen aslinya tidak kena filter ===== */
+html.ios27 :is(.card,.proj-item,.testimonial-card){background:transparent!important; border:0; border-radius:var(--r); box-shadow:none; isolation:isolate;}
+html.ios27 :is(.card,.proj-item,.testimonial-card)::before{content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none;
+  background:var(--glass); box-shadow:var(--edge); -webkit-backdrop-filter:var(--bf); backdrop-filter:var(--bf);}
+html.ios27 .ph, html.ios27 .media-thumb{border-radius:calc(var(--r) - 12px);}
+html.ios27 :is(.testimonial-card,.conn-hero,.rb-panel){padding:24px;}
+html.ios27 .proj-item{padding:26px;} html.ios27 .media-card{padding:0; overflow:hidden;} html.ios27 .media-card .media-body{padding:14px 18px 18px;}
+html.ios27 .media-channel{padding:16px 20px; margin-bottom:16px;}
+html.ios27 .conn-details div{border-top:1px solid var(--line);}
+
+/* ABOUT & SKILLS */
+html.ios27 .about-facts{display:block; padding:6px 22px; margin-top:28px;}
+html.ios27 .about-facts>div{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:14px 0; border-bottom:1px solid var(--line);}
+html.ios27 .about-facts>div:last-child{border-bottom:0;} html.ios27 .about-facts dt{margin:0; flex:none; color:var(--ink-faint);} html.ios27 .about-facts dd{text-align:right; font-weight:600;}
+html.ios27 .about-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:28px;}
+html.ios27 .about-stats .stat{padding:18px 10px; align-items:center; text-align:center;}
+html.ios27 .stat-num{color:#fff; font-weight:700;} html.ios27 .stat-label{color:var(--ink-muted);}
+html.ios27 .focus-list span{border:0; background:rgba(255,255,255,.18); color:#fff; border-radius:999px; font-weight:600; box-shadow:inset 0 1px 0 rgba(255,255,255,.4);}
+html.ios27 #skills .wrap>.reveal:last-child{padding:6px 24px;}
+html.ios27 .skill-row{border-top:0; border-bottom:1px solid var(--line); padding:20px 0;} html.ios27 .skill-row:last-child{border-bottom:0;} html.ios27 .skill-row:hover{transform:none;}
+html.ios27 .skill-bar{height:10px; background:rgba(255,255,255,.2); max-width:none; box-shadow:inset 0 1px 2px rgba(0,0,0,.2);}
+html.ios27 .skill-bar-fill{background:linear-gradient(90deg,#5ac8fa,#0a84ff,#bf5af2);}
+
+/* ===== NAV & KONTROL: kapsul kaca ===== */
+html.ios27 header .nav-bar, html.ios27 header.scrolled .nav-bar{margin:max(10px,env(safe-area-inset-top,0px)) auto 0; width:min(1120px,calc(100% - 20px)); padding:8px 12px; border-radius:999px;
+  background:var(--glass); box-shadow:var(--edge); -webkit-backdrop-filter:var(--bf); backdrop-filter:var(--bf);}
+html.ios27 .brand{font-size:.8rem;} html.ios27 .brand small{opacity:.7;}
+html.ios27 :is(.status-badge,.present-btn,.profile-dot,.menu-btn){background:rgba(255,255,255,.2); border:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.5); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);}
+html.ios27 :is(.settings-btn,.back-to-top){background:var(--glass); box-shadow:var(--edge); -webkit-backdrop-filter:var(--bf); backdrop-filter:var(--bf); color:#fff;}
+html.ios27 .overlay{background:rgba(20,12,70,.55)!important; -webkit-backdrop-filter:blur(34px) saturate(180%); backdrop-filter:blur(34px) saturate(180%);}
+html.ios27 .menu-item{border-radius:var(--r-sm);} html.ios27 .menu-item:hover{background:rgba(255,255,255,.14); color:#fff;}
+html.ios27 .detail{background:rgba(20,12,70,.7)!important; -webkit-backdrop-filter:blur(34px) saturate(180%); backdrop-filter:blur(34px) saturate(180%);}
+
+/* ===== TOMBOL KAPSUL + animasi pegas ===== */
+html.ios27 :is(.rb-cta,.hero-cta-ghost,.contact-links a,.footer-wa a,.proj-link){border-radius:999px; font-weight:600; letter-spacing:0; transition:transform .5s cubic-bezier(.34,1.56,.64,1), background .3s ease;}
+html.ios27 .rb-cta{background:linear-gradient(180deg,#4da3ff,#0a66ff); color:#fff; box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5), 0 8px 22px rgba(10,102,255,.45);}
+html.ios27 .rb-cta:hover{background:linear-gradient(180deg,#6bb3ff,#1a74ff); transform:scale(1.04);}
+html.ios27 :is(.hero-cta-ghost,.contact-links a,.footer-wa a,.proj-link){background:rgba(255,255,255,.2); color:#fff; border:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.5); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);}
+html.ios27 .proj-link{padding:8px 18px;}
+html.ios27 :is(.hero-cta-ghost,.contact-links a,.footer-wa a,.proj-link):hover{background:rgba(255,255,255,.3); transform:scale(1.05);}
+html.ios27 :is(.rb-nav-btn,.conn-pager button,.carousel-nav button){background:rgba(255,255,255,.2); border:0; color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.5); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);}
+
+/* ===== ACHIEVEMENTS: panel berpadding, tombol tetap di dalam gelembung ===== */
+html.ios27 .ach-rb-wrap>*{min-width:0;}
+html.ios27 .rb-panel{overflow:visible;} html.ios27 .rb-panel-title{margin:10px 0 16px;}
+html.ios27 .rb-stats{border-top:0; padding:0; gap:10px; margin-bottom:20px;}
+html.ios27 .rb-stats>div{background:rgba(255,255,255,.14); border-radius:20px; padding:12px 14px; border-left:0!important; min-width:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.35);}
+html.ios27 .rb-panel .rb-cta{display:block; width:100%; max-width:100%; text-align:center;}
+html.ios27 .journey-track{padding:16px 20px;}
+
+/* ===== PANEL PENGATURAN, WELCOME ===== */
+html.ios27 .settings-panel{background:rgba(30,20,90,calc(.35 + var(--lg-a)*.6))!important; color:#fff; border-radius:36px 0 0 36px; -webkit-backdrop-filter:blur(34px) saturate(190%); backdrop-filter:blur(34px) saturate(190%); box-shadow:inset 1.5px 0 0 rgba(255,255,255,.4),-20px 0 60px rgba(10,0,50,.45);}
+html.ios27 .settings-group{padding:16px; margin-bottom:14px; border-radius:var(--r-sm);}
+html.ios27 .welcome-card{background:rgba(35,22,100,.72); color:#fff; border-radius:40px; -webkit-backdrop-filter:blur(34px) saturate(190%); backdrop-filter:blur(34px) saturate(190%); box-shadow:var(--edge);}
+html.ios27 .welcome-opt{border-radius:var(--r-sm); background:rgba(255,255,255,.12); color:#fff;}
+html.ios27 .settings-toggle input{width:51px; height:31px; border-radius:999px; background:rgba(255,255,255,.28);}
+html.ios27 .settings-toggle input::before{width:27px; height:27px; top:2px; left:2px; box-shadow:0 2px 6px rgba(0,0,0,.35);}
+html.ios27 .settings-toggle input:checked{background:var(--green);} html.ios27 .settings-toggle input:checked::before{transform:translateX(20px);}
+html.ios27 .mode-switch{background:rgba(255,255,255,.16); border-radius:12px; padding:2px;}
+html.ios27 :is(.mode-btn,.lang-pick){border-radius:10px; color:rgba(255,255,255,.8);}
+html.ios27 :is(.mode-btn.active,.lang-pick.active){background:rgba(255,255,255,.9); color:#1a1040; box-shadow:0 3px 8px rgba(0,0,0,.2);}
+
+/* ===== ANTI TEKS KELUAR KOTAK ===== */
+html.ios27 :is(.card-title,.card-desc,.proj-text h3,.proj-text p,.testimonial-card blockquote,.t-name,.t-role,.media-title,.media-meta,.conn-details dd,.about-facts dd,.stat-label,.rb-panel-title,.rb-stat-value,.trophy-caption,.skill-row h3,.skill-row p,.media-channel-name,.media-channel-handle){overflow-wrap:anywhere; min-width:0;}
+html.ios27 .media-meta{flex-wrap:wrap; gap:4px 12px;}
+/* Mode Ringan / Barebone: bentuk & warna tetap, blur dimatikan */
+html.ios27.perf-lite *, html.ios27.perf-lite *::before, html.ios27.barebone *, html.ios27.barebone *::before{-webkit-backdrop-filter:none!important; backdrop-filter:none!important;}
+.lg-range{width:100%; margin:6px 0 2px; accent-color:var(--accent);} .lg-range:disabled{opacity:.4;}
+.lg-range-labels{display:flex; justify-content:space-between; font-size:.72rem; color:var(--ink-muted);}
+
+/* ===== REVISI: wallpaper lebih kalem + section kembali terpisah dengan garis ===== */
+html.ios27{--accent2:#6e78ff; background:#18233f;}
+html.ios27 body::before{filter:saturate(.85);
+  background:radial-gradient(55% 45% at 15% 15%,rgba(70,120,235,.75) 0,transparent 70%),radial-gradient(50% 45% at 90% 20%,rgba(110,100,210,.5) 0,transparent 70%),
+    radial-gradient(55% 50% at 80% 90%,rgba(60,130,200,.45) 0,transparent 70%),linear-gradient(165deg,#223566,#141c33);}
+html.ios27.dark body::before{filter:saturate(.8);
+  background:radial-gradient(55% 45% at 15% 15%,rgba(40,80,170,.55) 0,transparent 70%),radial-gradient(50% 45% at 90% 25%,rgba(80,70,170,.4) 0,transparent 70%),
+    radial-gradient(55% 50% at 80% 90%,rgba(35,90,150,.35) 0,transparent 70%),linear-gradient(165deg,#0c1224,#05070d);}
+html.ios27 .skill-bar-fill{background:linear-gradient(90deg,#64b5ff,#0a84ff);}
+/* pita section: gelap (navy) vs terang, dipisah garis tipis bercahaya */
+html.ios27 .section-navy{background:rgba(5,8,26,.42)!important;}
+html.ios27 :is(.section-off,#skills,#carousel-section){background:rgba(255,255,255,.05)!important;}
+html.ios27 :is(.section-navy,.section-off,#skills,#carousel-section,footer,.theme-player-section){
+  border-top:1px solid rgba(255,255,255,.2); box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 -12px 30px rgba(0,0,0,.12);}
+html.ios27 footer{background:rgba(5,8,26,.5)!important;}
+
+/* ===== FITUR BARU: Spotlight, Dock, Toast (Spotlight & Toast tampil di semua tema; Dock hanya di tema iOS 27) ===== */
+#ex-toast{position:fixed; left:50%; bottom:calc(96px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,20px) scale(.9); opacity:0; pointer-events:none; z-index:100002; padding:12px 20px; border-radius:999px; background:rgba(28,28,30,.82); color:#fff; font:600 .85rem -apple-system,"Segoe UI",sans-serif; -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 10px 30px rgba(0,0,0,.35); transition:all .45s cubic-bezier(.34,1.56,.64,1);}
+#ex-toast.on{opacity:1; transform:translate(-50%,0) scale(1);}
+#spot{position:fixed; inset:0; z-index:100001; display:none; align-items:flex-start; justify-content:center; padding:13vh 14px 0; background:rgba(5,8,26,.45); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);}
+#spot.on{display:flex; animation:spotIn .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes spotIn{from{opacity:0; transform:scale(.94) translateY(-8px);}to{opacity:1; transform:none;}}
+.spot-box{width:min(560px,100%); border-radius:30px; background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.08)),rgba(28,32,60,.7); box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),inset 0 1.5px 1px rgba(255,255,255,.5),0 30px 80px rgba(0,0,0,.5); -webkit-backdrop-filter:blur(34px) saturate(190%); backdrop-filter:blur(34px) saturate(190%); overflow:hidden; color:#fff; font-family:-apple-system,"Segoe UI",Roboto,sans-serif;}
+#spotIn{width:100%; border:0; outline:0; background:transparent; color:#fff; font-size:1.1rem; padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.18);}
+#spotIn::placeholder{color:rgba(255,255,255,.55);}
+#spotList{list-style:none; margin:0; padding:8px; max-height:52vh; overflow:auto;}
+#spotList li{padding:12px 16px; border-radius:16px; cursor:pointer; font-size:.95rem;} #spotList li.on,#spotList li:hover{background:rgba(255,255,255,.18);} #spotList li.none{opacity:.6; cursor:default;}
+#ios-dock{display:none; position:fixed; left:50%; bottom:calc(12px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:9990; gap:2px; padding:7px; border-radius:999px; max-width:calc(100% - 20px);
+  background:var(--glass); box-shadow:var(--edge); -webkit-backdrop-filter:var(--bf); backdrop-filter:var(--bf);}
+html.ios27 #ios-dock{display:flex;}
+#ios-dock .dk{display:flex; flex-direction:column; align-items:center; gap:3px; min-width:58px; padding:8px 10px; border:0; border-radius:999px; background:transparent; color:rgba(255,255,255,.75); font:600 .62rem -apple-system,"Segoe UI",sans-serif; cursor:pointer; transition:transform .45s cubic-bezier(.34,1.56,.64,1),background .3s;}
+#ios-dock .dk svg{width:21px; height:21px;} #ios-dock .dk.on{background:rgba(255,255,255,.24); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.45);} #ios-dock .dk:active{transform:scale(.9);}
+@media(max-width:420px){ #ios-dock .dk{min-width:48px; padding:8px 6px;} }
+/* tombol melayang naik supaya tidak ketutup dock */
+html.ios27 :is(.settings-btn,.back-to-top){bottom:calc(92px + env(safe-area-inset-bottom,0px))!important;}
+html.ios27 body{padding-bottom:84px;}
+/* sentuhan iOS: tekan = menciut ala pegas, seleksi & scrollbar halus */
+html.ios27 :is(button,.rb-cta,.hero-cta-ghost,.proj-link,.contact-links a,.menu-item):active{transform:scale(.95);}
+html.ios27{-webkit-tap-highlight-color:transparent; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.3) transparent;}
+html.ios27 ::selection{background:rgba(10,132,255,.55); color:#fff;}
